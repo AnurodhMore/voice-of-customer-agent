@@ -1,32 +1,85 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
+from pathlib import Path
+
 from services.story_generator import generate_user_stories
 from services.analyzer import analyze_reviews
 from services.ai_insights import generate_ai_insights
+
 # ---------------------------------------------------
 # Page Configuration
 # ---------------------------------------------------
 st.set_page_config(
-    page_title="Voice of Customer AI Agent",
+    page_title="Voice of Customer Dashboard",
     page_icon="💬",
     layout="wide"
 )
 
 # ---------------------------------------------------
-# Page Title
+# Load Custom CSS
 # ---------------------------------------------------
-st.title("💬 Voice of Customer AI Agent")
-st.markdown("""
-Transform raw customer feedback into **actionable product insights**.
+with open("assets/style.css") as f:
+    st.markdown(
+        f"<style>{f.read()}</style>",
+        unsafe_allow_html=True
+    )
 
-This AI-powered dashboard helps Product Managers:
-- 📊 Analyze customer sentiment
-- 🚨 Detect recurring issues
-- 💡 Extract feature requests
-- 📝 Generate Agile user stories
-- 🤖 Receive AI-powered product recommendations
+# ---------------------------------------------------
+# Sidebar
+# ---------------------------------------------------
+st.sidebar.title("🤖 Voice of Customer")
+
+st.sidebar.markdown("---")
+
+st.sidebar.write("### AI Product Dashboard")
+
+st.sidebar.info(
+    """
+Analyze customer feedback using AI.
+
+### Features
+
+- 📊 Review Analysis
+- 🚨 Pain Point Detection
+- 💡 Feature Requests
+- 📝 User Story Generation
+- 📈 Priority Matrix
+- 🤖 AI Product Insights
+"""
+)
+
+st.sidebar.markdown("---")
+st.sidebar.success("Version 1.0")
+
+st.sidebar.markdown("---")
+
+st.sidebar.subheader("Tech Stack")
+
+st.sidebar.markdown("""
+- Python
+- Streamlit
+- Pandas
+- Ollama
+- Llama 3.2
 """)
 
+# ---------------------------------------------------
+# Page Title
+# ---------------------------------------------------
+st.title("💬 Voice of Customer")
+st.caption("AI-powered Product Intelligence Dashboard")
+
+## st.caption(
+  ##  "AI-powered product analytics platform for discovering customer pain points, feature requests and product opportunities."
+##)
+
+st.markdown("""
+Discover customer pain points, prioritize product opportunities,
+and automatically generate user stories from customer feedback.
+
+Designed for Product Managers.
+""")
 
 # ---------------------------------------------------
 # File Upload
@@ -35,24 +88,34 @@ uploaded_file = st.file_uploader(
     "Upload your reviews",
     type=["csv", "xlsx"]
 )
+# ---------------------------------------------------
+# Download Sample Dataset
+# ---------------------------------------------------
 
+with open("data/customer_reviews_sample.csv", "rb") as f:
+    st.download_button(
+        label="📥 Download Sample Dataset",
+        data=f,
+        file_name="data/customer_reviews_sample.csv",
+        mime="text/csv"
+    )
 # ===================================================
 # MAIN APPLICATION
 # ===================================================
 if uploaded_file is not None:
 
     # ------------------------------------------------
-    # Read Uploaded File
+    # Read File
     # ------------------------------------------------
     if uploaded_file.name.endswith(".csv"):
         df = pd.read_csv(uploaded_file)
     else:
         df = pd.read_excel(uploaded_file)
 
-    st.success("✅ File uploaded successfully!")
+    st.success("✅ Analysis completed successfully!")
 
     # ------------------------------------------------
-    # Validate Required Columns
+    # Validate Columns
     # ------------------------------------------------
     required_columns = ["review", "rating"]
 
@@ -64,11 +127,13 @@ if uploaded_file is not None:
     if missing_columns:
         st.error(f"Missing required columns: {missing_columns}")
         st.stop()
+
     # ------------------------------------------------
     # Analyze Reviews
     # ------------------------------------------------
     analysis = analyze_reviews(df)
     ai_summary = generate_ai_insights(df)
+
     # ------------------------------------------------
     # Review Summary
     # ------------------------------------------------
@@ -81,9 +146,34 @@ if uploaded_file is not None:
     positive_pct = round((positive / total_reviews) * 100)
     neutral_pct = round((neutral / total_reviews) * 100)
     negative_pct = round((negative / total_reviews) * 100)
+    sentiment_df = pd.DataFrame({
+        "Sentiment": [
+          "Positive",
+          "Neutral",
+          "Negative"
+        ],
+        "Reviews": [
+          positive,
+          neutral,
+         negative
+        ]
+}) 
+    pie_chart = px.pie(
+      sentiment_df,
+      names="Sentiment",
+      values="Reviews",
+      hole=0.45,
+      title="Customer Sentiment"
+    )
 
+    pie_chart.update_layout(
+      paper_bgcolor="#0E1117",
+      plot_bgcolor="#0E1117",
+      font_color="white",
+      title_x=0.5
+    )
     # ------------------------------------------------
-    # Detect Feature Requests
+    # Feature Request Detection
     # ------------------------------------------------
     feature_keywords = [
         "add",
@@ -99,62 +189,61 @@ if uploaded_file is not None:
     feature_requests = []
 
     for review in df["review"]:
-
         review_lower = str(review).lower()
 
         if any(keyword in review_lower for keyword in feature_keywords):
             feature_requests.append(review)
-    # ------------------------------------------------
-    # Generate User Stories
-    # ------------------------------------------------
 
     feature_requests = list(set(feature_requests))
 
+    # ------------------------------------------------
+    # User Stories
+    # ------------------------------------------------
     if feature_requests:
         stories_df = generate_user_stories(feature_requests)
     else:
         stories_df = pd.DataFrame(
-           columns=["User Story", "Acceptance Criteria"]
-    )
-    # ------------------------------------------------
-    
-
-    
+            columns=["User Story", "Acceptance Criteria"]
+        )
 
     # ------------------------------------------------
-    # # Dynamic Priority Matrix
+    # Priority Matrix
     # ------------------------------------------------
     priority_matrix = pd.DataFrame([
-    {
-        "Issue": issue,
-        "Frequency": details["frequency"],
-        "Business Priority": details["score"]
-    }
+        {
+            "Issue": issue,
+            "Frequency": details["frequency"],
+            "Business Priority": details["score"]
+        }
         for issue, details in analysis.items()
     ])
 
     priority_matrix = priority_matrix.sort_values(
-        by="Score",
+        by="Business Priority",
         ascending=False
     )
 
     # ------------------------------------------------
     # KPI Cards
     # ------------------------------------------------
-    
-
     col1, col2, col3, col4 = st.columns(4)
 
     col1.metric("📄 Reviews", total_reviews)
 
     col2.metric(
-    "🚨 Critical Issues",
-    len([i for i in analysis.values() if i["frequency"] > 0])
-)
+        "🚨 Critical Issues",
+        len([i for i in analysis.values() if i["frequency"] > 0])
+    )
 
-    col3.metric("💡 Features", len(feature_requests))
+    col3.metric(
+        "💡 Features Requested",
+        len(feature_requests)
+    )
 
-    col4.metric("📝 Stories", len(stories_df))
+    col4.metric(
+        "📝 User Stories",
+        len(stories_df)
+    )
 
     st.divider()
 
@@ -168,11 +257,12 @@ if uploaded_file is not None:
 
         st.subheader("📊 Review Summary")
 
-        st.metric("😊 Positive Reviews", f"{positive_pct}%")
+        st.plotly_chart(
+            pie_chart,
+            use_container_width=True
+        )
 
-        st.metric("😐 Neutral Reviews", f"{neutral_pct}%")
-
-        st.metric("😞 Negative Reviews", f"{negative_pct}%")
+        st.markdown("---")
 
         st.subheader("💡 Feature Requests")
 
@@ -182,7 +272,7 @@ if uploaded_file is not None:
                 st.info(request)
 
         else:
-            st.write("No feature requests detected.")
+            st.info("No feature requests detected.")
 
     # ================= RIGHT =================
     with right:
@@ -190,23 +280,18 @@ if uploaded_file is not None:
         st.subheader("🔥 Top Pain Points")
 
         sorted_issues = sorted(
-           analysis.items(),
-           key=lambda x: x[1]["score"],
-           reverse=True
-)
+            analysis.items(),
+            key=lambda x: x[1]["score"],
+            reverse=True
+        )
 
-        medals = ["🥇", "🥈", "🥉"]
+        for i, (issue, details) in enumerate(sorted_issues[:3], start=1):
 
-for i, (issue, details) in enumerate(sorted_issues[:3]):
+            st.write(
+                f"**{i}. {issue}** — {details['frequency']} mentions"
+            )
 
-    st.markdown(
-        f"{medals[i]} **{issue}**  \n"
-        f"Mentions: **{details['frequency']}**  \n"
-        f"Priority Score: **{details['score']}**"
-    )
-    
-
-        
+        st.markdown("---")
 
         st.subheader("📈 Priority Matrix")
 
@@ -216,39 +301,59 @@ for i, (issue, details) in enumerate(sorted_issues[:3]):
             hide_index=True
         )
 
+    # ------------------------------------------------
+    # User Stories
+    # ------------------------------------------------
     st.divider()
-    st.subheader(f"📝 Generated User Stories ({len(stories_df)})")
+
+    st.subheader(
+        f"📝 Generated User Stories ({len(stories_df)})"
+    )
 
     st.dataframe(
         stories_df,
         use_container_width=True,
         hide_index=True
     )
-    st.divider()
 
+    # ------------------------------------------------
+    # AI Insights
+    # ------------------------------------------------
     st.divider()
 
     with st.expander(
-        "🤖 AI Product Manager Insights",
+        "🤖 Executive Product Summary",
         expanded=True
     ):
 
-    st.markdown(ai_summary)
+        st.markdown(ai_summary)
+
     # ------------------------------------------------
     # Export
     # ------------------------------------------------
+    st.divider()
+
     st.subheader("📤 Export")
 
-    csv = stories_df.to_csv(index=False).encode("utf-8")
+    csv = stories_df.to_csv(
+        index=False
+    ).encode("utf-8")
 
     st.download_button(
-        label="📥 Export User Stories",
+        label="📥 Download User Stories (.csv)",
         data=csv,
         file_name="user_stories.csv",
         mime="text/csv"
     )
+
     st.divider()
 
     st.caption(
-    "Built using Python • Streamlit • Pandas • Ollama • Llama 3.2"
+        "Built using ❤️ Python • Streamlit • Pandas • Ollama • Llama 3.2"
     )
+
+    st.markdown("---")
+
+st.caption(
+    "Built by Anurodh More • AI Product Management Portfolio Project • 2026"
+)

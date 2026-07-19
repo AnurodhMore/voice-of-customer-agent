@@ -1,0 +1,50 @@
+/* Hide Streamlit menu and footer */
+
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
+
+
+/* Reduce top padding */
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+
+/* Better metric cards */
+
+[data-testid="metric-container"] {
+    background-color: #f8f9fa;
+    border: 1px solid #ececec;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0px 3px 8px rgba(0,0,0,0.05);
+}
+
+
+/* Dataframes */
+
+[data-testid="stDataFrame"] {
+    border-radius: 12px;
+}
+
+
+/* Section spacing */
+
+h2 {
+    margin-top: 25px;
+}
+
+h3 {
+    margin-top: 20px;
+}
