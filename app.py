@@ -478,6 +478,7 @@ if uploaded_file is not None:
     st.caption(
         "Built with Python • Streamlit • Ollama • Llama 3.2 • Plotly")
     
+    st.caption("AI Product Management Portfolio Project") 
     st.caption("Designed & Built by Anurodh More")
-    st.caption("AI Product Management Portfolio Project")    
+       
     

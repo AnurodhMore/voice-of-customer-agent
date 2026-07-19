@@ -1,19 +1,20 @@
-import ollama
+import os
+from dotenv import load_dotenv
+from google import genai
+
+load_dotenv()
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def ask_llama(prompt):
     """
-    Sends a prompt to the local Llama model.
+    Sends prompt to Gemini.
     """
 
-    response = ollama.chat(
-        model="llama3.2",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
+    response = client.models.generate_content(
+        model="gemini-flash-latest",
+        contents=prompt
     )
 
-    return response["message"]["content"]
+    return response.text
