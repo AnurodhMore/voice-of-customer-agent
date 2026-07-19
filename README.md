@@ -1,5 +1,17 @@
 # 💬 Voice of Customer AI Agent
 
+## Screenshots
+
+<img width="1466" height="786" alt="Screenshot 2026-07-19 at 15 16 56" src="https://github.com/user-attachments/assets/2c3b85b5-2c13-4292-80b1-a85b485f9294" />
+
+<img width="1466" height="786" alt="Screenshot 2026-07-19 at 15 17 43" src="https://github.com/user-attachments/assets/4729113c-d076-44cf-be06-d727adc0d3c4" />
+
+<img width="1466" height="786" alt="Screenshot 2026-07-19 at 15 20 19" src="https://github.com/user-attachments/assets/93d5e7f9-657f-4ab3-bcc5-701d5891a1db" />
+
+<img width="1466" height="786" alt="Screenshot 2026-07-19 at 15 20 59" src="https://github.com/user-attachments/assets/fdff92d7-2d63-4bf3-a547-9cf7aad9bd97" />
+
+---
+
 ## Overview
 
 Analyze thousands of customer reviews using AI and automatically discover product pain points, prioritize issues, extract feature requests, and generate product-ready user stories.
@@ -132,11 +144,7 @@ requirements.txt
 
 ---
 
-## Screenshots
 
-(Add dashboard image)
-
----
 
 ## Installation
 
