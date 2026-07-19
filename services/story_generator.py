@@ -1,3 +1,4 @@
+from services.gemini_service import ask_ai
 import pandas as pd
 
 

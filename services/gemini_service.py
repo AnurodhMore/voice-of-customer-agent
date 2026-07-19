@@ -7,11 +7,10 @@ load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-def ask_llama(prompt):
+def ask_ai(prompt):
     """
-    Sends prompt to Gemini.
+    Sends a prompt to Google Gemini Flash and returns the response.
     """
-
     response = client.models.generate_content(
         model="gemini-flash-latest",
         contents=prompt

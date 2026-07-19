@@ -62,8 +62,7 @@ st.sidebar.markdown("""
 - Python
 - Streamlit
 - Pandas
-- Ollama
-- Llama 3.2
+- Google Gemini API
 """)
 
 # ---------------------------------------------------
@@ -476,7 +475,7 @@ if uploaded_file is not None:
     st.divider()
 
     st.caption(
-        "Built with Python • Streamlit • Ollama • Llama 3.2 • Plotly")
+        "Built with Python • Streamlit • Google Gemini API • Plotly")
     
     st.caption("AI Product Management Portfolio Project") 
     st.caption("Designed & Built by Anurodh More")

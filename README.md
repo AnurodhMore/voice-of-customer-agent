@@ -73,8 +73,7 @@ Priority Engine
 
 ↓
 
-LLM (Ollama)
-
+LLM (Gemini Flash)
 ↓
 
 AI Product Manager Insights
@@ -85,32 +84,32 @@ Dashboard
 
 ## Architecture Diagram
 
-Customer Reviews CSV
-
-        │
-
-        ▼
-
- Review Analyzer
-
-        │
-
- ┌──────────────┐
- │ Sentiment    │
- │ Pain Points  │
- │ Features     │
- │ User Stories │
- └──────────────┘
-
-        │
-
-        ▼
-
-   Dashboard
-
-        │
-
- Streamlit
+                ┌───────────────────────────┐
+                │      Streamlit UI         │
+                └─────────────┬─────────────┘
+                              │
+                     Upload CSV / Excel
+                              │
+                              ▼
+                ┌───────────────────────────┐
+                │      Data Processing      │
+                │         (Pandas)          │
+                └─────────────┬─────────────┘
+                              │
+             Sentiment • Feature Detection • Prioritization
+                              │
+                              ▼
+                ┌───────────────────────────┐
+                │      Google Gemini API    │
+                │      (Gemini Flash)       │
+                └─────────────┬─────────────┘
+                              │
+                              ▼
+                ┌───────────────────────────┐
+                │ AI User Stories           │
+                │ Executive Summary         │
+                │ Product Insights          │
+                └───────────────────────────┘
 
 ---
 
@@ -138,14 +137,15 @@ Customer Reviews CSV
 ---
 ## Tech Stack
 
-| Layer           | Technology |
-| --------------- | ---------- |
-| Frontend        | Streamlit  |
-| Language        | Python     |
-| AI              | Ollama     |
-| LLM             | Llama 3.2  |
-| Data            | Pandas     |
-| Version Control | Git        |
+| Layer           | Technology  |
+| --------------- | ----------  |
+| Frontend        | Streamlit   |
+| Language        | Python      |
+| AI              | Gemini API  |
+| LLM             | Gemini Flash|
+| Data            | Pandas      |
+| Visualization   | Plotly      |
+| Version Control | Git         |
 
 ---
 ## Folder Structure
@@ -175,15 +175,37 @@ requirements.txt
 
 ## Installation
 
-git clone
+## Installation
 
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/AnurodhMore/voice-of-customer-agent.git
 cd voice-of-customer-agent
+```
 
+### 2. Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-ollama run llama3.2
+### 3. Configure your Gemini API Key
 
+Create a `.env` file in the project root:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+You can generate a free API key from **Google AI Studio**:
+https://aistudio.google.com/
+
+### 4. Run the application
+
+```bash
 streamlit run app.py
+```
 
 ---
 

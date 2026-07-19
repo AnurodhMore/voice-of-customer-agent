@@ -1,4 +1,4 @@
-from services.local_llm import ask_llama
+from services.gemini_service import ask_ai
 
 
 def detect_issues(reviews):
@@ -18,4 +18,4 @@ Reviews:
 {reviews}
 """
 
-    return ask_llama(prompt)
+    return ask_ai(prompt)

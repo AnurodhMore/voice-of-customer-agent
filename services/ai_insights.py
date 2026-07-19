@@ -1,4 +1,4 @@
-from services.local_llm import ask_llama
+from services.gemini_service import ask_ai
 
 
 def generate_ai_insights(df):
@@ -23,4 +23,4 @@ Reviews:
 {reviews}
 """
 
-    return ask_llama(prompt)
+    return ask_ai(prompt)
