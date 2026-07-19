@@ -83,7 +83,34 @@ AI Product Manager Insights
 
 Dashboard
 
-(Add architecture image)
+## Architecture Diagram
+
+Customer Reviews CSV
+
+        │
+
+        ▼
+
+ Review Analyzer
+
+        │
+
+ ┌──────────────┐
+ │ Sentiment    │
+ │ Pain Points  │
+ │ Features     │
+ │ User Stories │
+ └──────────────┘
+
+        │
+
+        ▼
+
+   Dashboard
+
+        │
+
+ Streamlit
 
 ---
 
