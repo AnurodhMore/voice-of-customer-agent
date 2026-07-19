@@ -48,3 +48,20 @@ h2 {
 h3 {
     margin-top: 20px;
 }
+
+.metric-card{
+    background:#1f2937;
+    border-radius:15px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+}
+
+.metric-card h4{
+    color:#BFC7D5;
+    margin-bottom:10px;
+}
+
+.metric-card h1{
+    font-size:42px;
+}

@@ -50,7 +50,7 @@ Analyze customer feedback using AI.
 )
 
 st.sidebar.markdown("---")
-st.sidebar.success("Version 1.0")
+st.sidebar.success("Portfolio Project")
 
 st.sidebar.markdown("---")
 
@@ -85,7 +85,7 @@ Designed for Product Managers.
 # File Upload
 # ---------------------------------------------------
 uploaded_file = st.file_uploader(
-    "Upload your reviews",
+    "Upload Customer Reviews Dataset",
     type=["csv", "xlsx"]
 )
 # ---------------------------------------------------
@@ -112,7 +112,7 @@ if uploaded_file is not None:
     else:
         df = pd.read_excel(uploaded_file)
 
-    st.success("✅ Analysis completed successfully!")
+    st.success(f"✅ {len(df)} customer reviews analyzed successfully!")
 
     # ------------------------------------------------
     # Validate Columns
@@ -128,20 +128,35 @@ if uploaded_file is not None:
         st.error(f"Missing required columns: {missing_columns}")
         st.stop()
 
+    st.divider()
+
+    st.subheader("🎛 Dashboard Filters")
+
+    minimum_rating = st.slider(
+        "Show reviews with rating",
+        min_value=1,
+        max_value=5,
+        value=1
+    )
+
+    filtered_df = df[df["rating"] >= minimum_rating]
+    if filtered_df.empty:
+        st.warning("No reviews match the selected filter.")
+        st.stop()
     # ------------------------------------------------
     # Analyze Reviews
     # ------------------------------------------------
-    analysis = analyze_reviews(df)
-    ai_summary = generate_ai_insights(df)
+    analysis = analyze_reviews(filtered_df)
+    ai_summary = generate_ai_insights(filtered_df)
 
     # ------------------------------------------------
     # Review Summary
     # ------------------------------------------------
-    total_reviews = len(df)
+    total_reviews = len(filtered_df)
 
-    positive = (df["rating"] >= 4).sum()
-    neutral = (df["rating"] == 3).sum()
-    negative = (df["rating"] <= 2).sum()
+    positive = (filtered_df["rating"] >= 4).sum()
+    neutral = (filtered_df["rating"] == 3).sum()
+    negative = (filtered_df["rating"] <= 2).sum()
 
     positive_pct = round((positive / total_reviews) * 100)
     neutral_pct = round((neutral / total_reviews) * 100)
@@ -188,7 +203,7 @@ if uploaded_file is not None:
 
     feature_requests = []
 
-    for review in df["review"]:
+    for review in filtered_df["review"]:
         review_lower = str(review).lower()
 
         if any(keyword in review_lower for keyword in feature_keywords):
@@ -228,25 +243,34 @@ if uploaded_file is not None:
     # ------------------------------------------------
     col1, col2, col3, col4 = st.columns(4)
 
-    col1.metric("📄 Reviews", total_reviews)
+    col1.metric(
+        label="📄 Reviews",
+        value=total_reviews
+    )
 
     col2.metric(
-        "🚨 Critical Issues",
-        len([i for i in analysis.values() if i["frequency"] > 0])
+        label="🚨 Critical Issues",
+        value=len([i for i in analysis.values() if i["frequency"] > 0])
     )
 
     col3.metric(
-        "💡 Features Requested",
-        len(feature_requests)
+        label="💡 Features Requested",
+        value=len(feature_requests)
     )
 
     col4.metric(
-        "📝 User Stories",
-        len(stories_df)
+        label="📝 User Stories",
+        value=len(stories_df)
     )
 
     st.divider()
-
+    st.info(
+    """
+    The dashboard automatically identifies customer pain points,
+    feature requests and converts them into prioritized
+    product opportunities.
+    """
+    )
     # ------------------------------------------------
     # Dashboard Layout
     # ------------------------------------------------
@@ -255,7 +279,7 @@ if uploaded_file is not None:
     # ================= LEFT =================
     with left:
 
-        st.subheader("📊 Review Summary")
+        st.subheader("📊 Customer Sentiment")
 
         st.plotly_chart(
             pie_chart,
@@ -277,10 +301,14 @@ if uploaded_file is not None:
     # ================= RIGHT =================
     with right:
 
-        st.subheader("🔥 Top Pain Points")
+        st.subheader("🔥 Highest Impact Issues")
 
         sorted_issues = sorted(
-            analysis.items(),
+           [
+                (issue, details)
+                for issue, details in analysis.items()
+                if details["frequency"] > 0
+            ],
             key=lambda x: x[1]["score"],
             reverse=True
         )
@@ -293,12 +321,25 @@ if uploaded_file is not None:
 
         st.markdown("---")
 
-        st.subheader("📈 Priority Matrix")
+        st.subheader("📈 Business Priority Score")
 
-        st.dataframe(
+        fig = px.bar(
             priority_matrix,
-            use_container_width=True,
-            hide_index=True
+            x="Business Priority",
+            y="Issue",
+            orientation="h",
+            text="Business Priority",
+            height=300
+        )
+
+        fig.update_layout(
+            yaxis=dict(categoryorder="total ascending"),
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
         )
 
     # ------------------------------------------------
@@ -307,7 +348,7 @@ if uploaded_file is not None:
     st.divider()
 
     st.subheader(
-        f"📝 Generated User Stories ({len(stories_df)})"
+        f"📝 AI Generated User Stories({len(stories_df)})"
     )
 
     st.dataframe(
@@ -352,8 +393,9 @@ if uploaded_file is not None:
         "Built using ❤️ Python • Streamlit • Pandas • Ollama • Llama 3.2"
     )
 
-    st.markdown("---")
-
-st.caption(
-    "Built by Anurodh More • AI Product Management Portfolio Project • 2026"
-)
+    st.caption(("Built by Anurodh More "
+        "AI Product Management Portfolio Project" 
+        "Python • Streamlit • Ollama • Llama 3.2 • Pandas"
+        "2026")
+        )
+    
