@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from pathlib import Path
-
 from services.story_generator import generate_user_stories
 from services.analyzer import analyze_reviews
 from services.ai_insights import generate_ai_insights
@@ -19,11 +18,14 @@ st.set_page_config(
 # ---------------------------------------------------
 # Load Custom CSS
 # ---------------------------------------------------
-with open("assets/style.css") as f:
-    st.markdown(
-        f"<style>{f.read()}</style>",
-        unsafe_allow_html=True
-    )
+css_path = Path("assets/css/style.css")
+
+if css_path.exists():
+    with open(css_path) as f:
+        st.markdown(
+            f"<style>{f.read()}</style>",
+            unsafe_allow_html=True
+        )
 
 # ---------------------------------------------------
 # Sidebar
@@ -41,7 +43,7 @@ Analyze customer feedback using AI.
 ### Features
 
 - 📊 Review Analysis
-- 🚨 Pain Point Detection
+- 📍 Pain Point Detection
 - 💡 Feature Requests
 - 📝 User Story Generation
 - 📈 Priority Matrix
@@ -74,27 +76,44 @@ st.caption("AI-powered Product Intelligence Dashboard")
   ##  "AI-powered product analytics platform for discovering customer pain points, feature requests and product opportunities."
 ##)
 
-st.markdown("""
-Discover customer pain points, prioritize product opportunities,
-and automatically generate user stories from customer feedback.
+st.markdown(
+    """
+Transform customer feedback into **prioritized product opportunities** using AI.
 
-Designed for Product Managers.
-""")
+Designed for **Product Managers**, **Product Owners**, and **Founders** to quickly identify customer pain points, prioritize features, and generate actionable user stories.
+"""
+)
 
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.success("Sentiment Analysis")
+
+with col2:
+    st.success("Pain Point Detection")
+
+with col3:
+    st.success("Feature Requests")
+
+with col4:
+    st.success("AI User Stories")
+st.markdown("<br>", unsafe_allow_html=True)
 # ---------------------------------------------------
 # File Upload
 # ---------------------------------------------------
+st.markdown("### 📂 Upload Customer Reviews")
+st.caption("Upload a CSV or Excel file to begin AI-powered analysis.")
 uploaded_file = st.file_uploader(
     "Upload Customer Reviews Dataset",
     type=["csv", "xlsx"]
 )
 # ---------------------------------------------------
-# Download Sample Dataset
+# Download Demo Dataset
 # ---------------------------------------------------
 
 with open("data/customer_reviews_sample.csv", "rb") as f:
     st.download_button(
-        label="📥 Download Sample Dataset",
+        label="📥 Download Demo Dataset",
         data=f,
         file_name="data/customer_reviews_sample.csv",
         mime="text/csv"
@@ -158,9 +177,7 @@ if uploaded_file is not None:
     neutral = (filtered_df["rating"] == 3).sum()
     negative = (filtered_df["rating"] <= 2).sum()
 
-    positive_pct = round((positive / total_reviews) * 100)
-    neutral_pct = round((neutral / total_reviews) * 100)
-    negative_pct = round((negative / total_reviews) * 100)
+ 
     sentiment_df = pd.DataFrame({
         "Sentiment": [
           "Positive",
@@ -237,31 +254,74 @@ if uploaded_file is not None:
         by="Business Priority",
         ascending=False
     )
-
+    critical_count = sum(
+    details["frequency"]
+    for details in analysis.values()
+)
     # ------------------------------------------------
     # KPI Cards
     # ------------------------------------------------
     col1, col2, col3, col4 = st.columns(4)
 
-    col1.metric(
-        label="📄 Reviews",
-        value=total_reviews
-    )
+    with col1:
+        st.markdown(f"""
+        <div style="
+            background:#1E1E1E;
+            padding:20px;
+            border-radius:12px;
+            border:1px solid #30363d;
+            text-align:center;
+        ">
+            <div style="font-size:28px;">📄</div>
+            <div style="font-size:32px;font-weight:bold;">{len(filtered_df)}</div>
+            <div style="color:#9CA3AF;">Total Reviews</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    col2.metric(
-        label="🚨 Critical Issues",
-        value=len([i for i in analysis.values() if i["frequency"] > 0])
-    )
+    with col2:
+        st.markdown(f"""
+        <div style="
+            background:#1E1E1E;
+            padding:20px;
+            border-radius:12px;
+            border:1px solid #30363d;
+            text-align:center;
+        ">
+            <div style="font-size:28px;">🚨</div>
+            <div style="font-size:32px;font-weight:bold;">{critical_count}</div>
+            <div style="color:#9CA3AF;">Critical Issues</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    col3.metric(
-        label="💡 Features Requested",
-        value=len(feature_requests)
-    )
+    with col3:
+        st.markdown(f"""
+        <div style="
+            background:#1E1E1E;
+            padding:20px;
+            border-radius:12px;
+            border:1px solid #30363d;
+            text-align:center;
+        ">
+            <div style="font-size:28px;">💡</div>
+            <div style="font-size:32px;font-weight:bold;">{len(feature_requests)}</div>
+            <div style="color:#9CA3AF;">Feature Requests</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    col4.metric(
-        label="📝 User Stories",
-        value=len(stories_df)
-    )
+    with col4:
+        st.markdown(f"""
+        <div style="
+            background:#1E1E1E;
+            padding:20px;
+            border-radius:12px;
+            border:1px solid #30363d;
+            text-align:center;
+        ">
+            <div style="font-size:28px;">📝</div>
+            <div style="font-size:32px;font-weight:bold;">{len(stories_df)}</div>
+            <div style="color:#9CA3AF;">AI User Stories</div>
+        </div>
+    """, unsafe_allow_html=True)
 
     st.divider()
     st.info(
@@ -301,7 +361,7 @@ if uploaded_file is not None:
     # ================= RIGHT =================
     with right:
 
-        st.subheader("🔥 Highest Impact Issues")
+        st.subheader("📍 Highest Impact Issues")
 
         sorted_issues = sorted(
            [
@@ -357,6 +417,32 @@ if uploaded_file is not None:
         hide_index=True
     )
 
+    st.divider()
+
+    st.subheader("🔍 Customer Review Explorer")
+
+    search = st.text_input(
+        "Search customer reviews",
+        placeholder="Search by keyword..."
+    )
+
+    review_df = filtered_df.copy()
+
+    if search:
+        review_df = review_df[
+            review_df["review"].str.contains(
+                search,
+                case=False,
+                na=False
+            )    
+        ]
+
+    st.dataframe(
+        review_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
     # ------------------------------------------------
     # AI Insights
     # ------------------------------------------------
@@ -390,12 +476,8 @@ if uploaded_file is not None:
     st.divider()
 
     st.caption(
-        "Built using ❤️ Python • Streamlit • Pandas • Ollama • Llama 3.2"
-    )
-
-    st.caption(("Built by Anurodh More "
-        "AI Product Management Portfolio Project" 
-        "Python • Streamlit • Ollama • Llama 3.2 • Pandas"
-        "2026")
-        )
+        "Built with Python • Streamlit • Ollama • Llama 3.2 • Plotly")
+    
+    st.caption("Designed & Built by Anurodh More")
+    st.caption("AI Product Management Portfolio Project")    
     
